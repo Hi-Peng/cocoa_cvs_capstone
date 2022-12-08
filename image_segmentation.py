@@ -1,11 +1,9 @@
 import cv2 as cv
 import numpy as np
-import imutils
 from matplotlib import pyplot as plt
 
 is_normalized = True
 image = cv.imread("IMG_1483.JPG")
-hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
 # Set total number of bins in the histogram
 bins_num = 256
@@ -47,5 +45,4 @@ mask_inv[mask_inv==0] = 255
 mask_inv[mask_inv==10] = 0
 output = cv.bitwise_and(image,image, mask= mask_inv)
 cv.namedWindow("imageout", cv.WINDOW_NORMAL) 
-cv.imshow("imageout",hsv_image)
 cv.waitKey(0)
