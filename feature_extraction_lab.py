@@ -63,6 +63,6 @@ glcm_df = pd.DataFrame(features,
                       columns = col)
 
 #save to csv
-glcm_df.to_csv("cocoa_features_lab.csv")
+glcm_df.to_csv("cocoa_features_lab2.csv")
 
 glcm_df.head(7)
