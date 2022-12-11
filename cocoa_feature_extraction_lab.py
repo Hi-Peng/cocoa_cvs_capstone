@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np 
 from scipy.stats import kurtosis, skew, tvar, tmax, tmin, tmean
 from skimage.feature import graycomatrix, graycoprops
-
+import skimage.measure 
 import matplotlib.pyplot as plt
 import cv2
 import os
@@ -73,46 +73,47 @@ for folder in os.listdir(dataset_dir):
             gray_img = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
 
             for a in range(3):
-                f.append(kurtosis(cropped_image[:,:,a], axis=None))
-                f.append(skew(cropped_image[:,:,a], axis=None, bias=True))
-                f.append(tvar(cropped_image[:,:,a], axis=None))
-                f.append(tmean(cropped_image[:,:,a], axis=None))
+                ''' f.append(kurtosis(cropped_image[:,:,a], axis=None))
+                    f.append(skew(cropped_image[:,:,a], axis=None, bias=True))
+                    f.append(tvar(cropped_image[:,:,a], axis=None))
+                    f.append(tmean(cropped_image[:,:,a], axis=None))
 
-                f.append(kurtosis(hsv_img[:,:,a], axis=None))
-                f.append(skew(hsv_img[:,:,a], axis=None, bias=True))
-                f.append(tvar(hsv_img[:,:,a], axis=None))
-                f.append(tmean(hsv_img[:,:,a], axis=None))
+                    f.append(kurtosis(hsv_img[:,:,a], axis=None))
+                    f.append(skew(hsv_img[:,:,a], axis=None, bias=True))
+                    f.append(tvar(hsv_img[:,:,a], axis=None))
+                    f.append(tmean(hsv_img[:,:,a], axis=None))'''
 
                 f.append(kurtosis(lab_img[:,:,a], axis=None))
                 f.append(skew(lab_img[:,:,a], axis=None, bias=True))
                 f.append(tvar(lab_img[:,:,a], axis=None))
                 f.append(tmean(lab_img[:,:,a], axis=None))
+                f.append(skimage.measure.shannon_entropy(lab_img[:,:,a])) 
+                 
+            
+            glcm_f = calc_glcm_all_agls(gray_img, normalize_label(os.path.splitext(filename)[0]), props=properties)
+            for u in range(len(glcm_f)):
+                f.append(glcm_f[u])
 
-            #glcm_f = calc_glcm_all_agls(gray_img, normalize_label(os.path.splitext(filename)[0]), props=properties)
-            #for x in range(len(glcm_f)):
-            #    f.append(glcm_f[x])
-
+            # f.append(normalize_label(os.path.splitext(filename)[0]))
             features.append(f)
-
             labels.append(normalize_label(os.path.splitext(filename)[0]))
             descs.append(normalize_desc(folder, sub_folder))
             print_progress(i, len_sub_folder, folder, sub_folder, filename)
 
 col = [ 
-        'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
-        'g_kurtosis', 'g_skew', 'g_tvar', 'g_tmean',
-        'r_kurtosis', 'r_skew', 'r_tvar', 'r_tmean', 
-        
-        'h_kurtosis', 'v_skew', 'h_tvar', 'h_tmean',
-        's_kurtosis', 'v_skew', 's_tvar', 's_tmean',
-        'v_kurtosis', 'v_skew', 'v_tvar', 'v_tmean', 
+        'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
+        'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean','a_entropy',
+        'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean','b_entropy',
 
-        'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean',
-        'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean',
-        'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
+        'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
+        'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
+        'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
+        'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
+        'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
+        'energy_0',         'energy_45',        'energy_90',        'energy_135', 
 
         'label'
-] 
+]
 
 '''col = [ 
         'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
@@ -144,4 +145,4 @@ glcm_df = pd.DataFrame(features,
 #save to csv
 glcm_df.to_csv("cocoa_features_lab.csv")
 
-glcm_df.head(7)
+print(glcm_df.head(7))

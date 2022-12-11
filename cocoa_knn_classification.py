@@ -3,6 +3,7 @@ import numpy as np
 from scipy.stats import kurtosis, skew, tvar, tmean
 import pickle
 from skimage.feature import graycomatrix, graycoprops
+from skimage.measure import shannon_entropy
 from datetime import datetime
 properties = ['dissimilarity', 'correlation', 'homogeneity', 'contrast', 'ASM', 'energy']
 
@@ -41,7 +42,7 @@ color = (255, 0, 0)
 # Line thickness of 2 px
 thickness = 1
 # Load image, grayscale, Otsu's threshold
-image = cv2.imread(r'D:\Project\cocoa_cvs_capstone\test_images\UNDER FERMENTED-TANPA ALAS.jpg')
+image = cv2.imread(r'test_images\NON FERMENTED-TANPA ALAS.jpg')
 image = cv2.resize(image, (0,0), fx=0.5, fy=0.5) 
 
 height, width, channels = image.shape
@@ -80,21 +81,11 @@ for c in cnts:
         f = []
         glcm_f = []
         for a in range(3):
-            f.append(kurtosis(ROI[:,:,a], axis=None))
-            f.append(skew(ROI[:,:,a], axis=None, bias=True))
-            f.append(tvar(ROI[:,:,a], axis=None))
-            f.append(tmean(ROI[:,:,a], axis=None))
-
-            f.append(kurtosis(hsv_img[:,:,a], axis=None))
-            f.append(skew(hsv_img[:,:,a], axis=None, bias=True))
-            f.append(tvar(hsv_img[:,:,a], axis=None))
-            f.append(tmean(hsv_img[:,:,a], axis=None))
-
             f.append(kurtosis(lab_img[:,:,a], axis=None))
             f.append(skew(lab_img[:,:,a], axis=None, bias=True))
             f.append(tvar(lab_img[:,:,a], axis=None))
             f.append(tmean(lab_img[:,:,a], axis=None))
-            
+            f.append(shannon_entropy(lab_img[:,:,a])) 
         glcm_f = calc_glcm_all_agls(gray_img, props=properties)
         for u in range(len(glcm_f)):
             f.append(glcm_f[u])
@@ -102,10 +93,10 @@ for c in cnts:
         f_array = np.array(f, ndmin=2)
         prediction = loaded_model.predict(f_array)
 
-        ROI = cv2.putText(image, str(label_name[int(prediction[0][0])]),  (x, y), font, 
-                    fontScale, color, thickness, cv2.LINE_AA)
+        image = cv2.putText(image, str(label_name[int(prediction[0][0])]),  (x, y), font, 
+                   fontScale, color, thickness, cv2.LINE_AA)
 
-       # cv2.imwrite('result/ROI_{}_{}.png'.format(str(label_name[int(prediction[0][0])]), ROI_number), ROI)
+        # cv2.imwrite('result/ROI_{}_{}.png'.format(str(label_name[int(prediction[0][0])]), ROI_number), ROI)
 
         print("detected " + str(label_name[int(prediction[0][0])]) + " cocoa")
         ROI_number += 1
@@ -115,6 +106,7 @@ for c in cnts:
 now = datetime.now()
 dt_string = now.strftime("%Y%m%d%H%M%S")
 print(dt_string)
+
 cv2.imwrite('result/FINAL-{}.png'.format(str(dt_string)), image)
 cv2.imshow("classified", image)
 cv2.waitKey(0)

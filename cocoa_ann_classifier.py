@@ -5,6 +5,7 @@ from scipy.stats import kurtosis, skew, tvar, tmean
 import keras
 from keras import backend as K
 from skimage.feature import graycomatrix, graycoprops
+import skimage.measure 
 from datetime import datetime
 
 properties = ['dissimilarity', 'correlation', 'homogeneity', 'contrast', 'ASM', 'energy']
@@ -57,7 +58,7 @@ color = (255, 0, 0)
 # Line thickness of 2 px
 thickness = 1
 # Load image, grayscale, Otsu's threshold
-image = cv2.imread(r'test_images\PARSIAL FERMENTED-TANPA ALAS.jpg')
+image = cv2.imread(r'test_images\NON FERMENTED-TANPA ALAS.jpg')
 image = cv2.resize(image, (0,0), fx=0.7, fy=0.7) 
 
 height, width, channels = image.shape
@@ -69,7 +70,7 @@ thresh = cv2.threshold(gray, 15, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 # Morph open to remove noise
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
 opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=5)
-
+  
 # Find contours, obtain bounding box, extract and save ROI
 ROI_number = 0
 cnts = cv2.findContours(opening, cv2.RETR_TREE, 2)
@@ -99,7 +100,7 @@ for c in cnts:
         f = []
 
         for a in range(3):
-            f.append(kurtosis(ROI[:,:,a], axis=None))
+            '''f.append(kurtosis(ROI[:,:,a], axis=None))
             f.append(skew(ROI[:,:,a], axis=None, bias=True))
             f.append(tvar(ROI[:,:,a], axis=None))
             f.append(tmean(ROI[:,:,a], axis=None))
@@ -108,12 +109,13 @@ for c in cnts:
             f.append(kurtosis(hsv_img[:,:,a], axis=None))
             f.append(skew(hsv_img[:,:,a], axis=None, bias=True))
             f.append(tvar(hsv_img[:,:,a], axis=None))
-            f.append(tmean(hsv_img[:,:,a], axis=None))
+            f.append(tmean(hsv_img[:,:,a], axis=None))'''
 
             f.append(kurtosis(lab_img[:,:,a], axis=None))
             f.append(skew(lab_img[:,:,a], axis=None, bias=True))
             f.append(tvar(lab_img[:,:,a], axis=None))
             f.append(tmean(lab_img[:,:,a], axis=None))
+            f.append(skimage.measure.shannon_entropy(lab_img[:,:,a])) 
             
         glcm_f = calc_glcm_all_agls(gray_img, props=properties)
         for u in range(len(glcm_f)):

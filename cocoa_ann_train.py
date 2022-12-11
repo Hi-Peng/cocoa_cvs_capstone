@@ -43,7 +43,7 @@ def recall(y_true, y_pred):
 def nn_model(max_len):
     
     model = Sequential()
-    model.add(Dense(60, 
+    model.add(Dense(39, 
                     activation="elu",
                     input_shape=(max_len, )))
     model.add(Dense(1024, activation="elu"))
@@ -126,6 +126,20 @@ label_name = ['fullyfermented', 'partialfermented', 'underfermented', 'unferment
 print(label_distr)
 
 X = decimal_scaling(
+            glcm_df[[
+                            'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
+        'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean','a_entropy',
+        'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean','b_entropy',
+
+        'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
+        'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
+        'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
+        'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
+        'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
+        'energy_0',         'energy_45',        'energy_90',        'energy_135']].values
+            )
+
+'''X = decimal_scaling(
             glcm_df[['b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
                             'g_kurtosis', 'g_skew', 'g_tvar', 'g_tmean',
                             'r_kurtosis', 'r_skew', 'r_tvar', 'r_tmean', 
@@ -144,9 +158,7 @@ X = decimal_scaling(
                             'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
                             'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
                             'energy_0',         'energy_45',         'energy_90',         'energy_135' ]].values
-            )
-
-print(X)
+            )'''
 
 le = LabelEncoder()
 le.fit(glcm_df["label"].values)
@@ -171,7 +183,7 @@ print("%s \t %s \t %s \t %s" % (X_train.shape, X_test.shape, y_train.shape, y_te
 
 max_len = X_train.shape[1]  
 
-EPOCHS = 1000
+EPOCHS = 500
 BATCH_SIZE = 75
 
 model = nn_model(max_len)

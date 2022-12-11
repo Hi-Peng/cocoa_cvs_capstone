@@ -22,6 +22,7 @@ from keras import backend as K
 
 import itertools
 import pickle
+
 # ------------------------ Data Normalization menggunakan Decimal Scaling --------------------------------
 def decimal_scaling(data):
     data = np.array(data, dtype=np.float32)
@@ -99,25 +100,17 @@ print(label_distr)
 
 X = decimal_scaling(
             glcm_df[[
-                            'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
-                            'g_kurtosis', 'g_skew', 'g_tvar', 'g_tmean',
-                            'r_kurtosis', 'r_skew', 'r_tvar', 'r_tmean', 
-                            
-                            'h_kurtosis', 'v_skew', 'h_tvar', 'h_tmean',
-                            's_kurtosis', 'v_skew', 's_tvar', 's_tmean',
-                            'v_kurtosis', 'v_skew', 'v_tvar', 'v_tmean', 
+                        'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
+                        'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean','a_entropy',
+                        'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean','b_entropy',
 
-                            'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean',
-                            'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean',
-                            'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean',
-
-                            'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
-                            'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
-                            'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
-                            'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
-                            'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
-                            'energy_0',         'energy_45',         'energy_90',         'energy_135']].values
-                )
+                        'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
+                        'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
+                        'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
+                        'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
+                        'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
+                        'energy_0',         'energy_45',         'energy_90',         'energy_135']].values
+)
 
 le = LabelEncoder()
 le.fit(glcm_df["label"].values)
@@ -141,7 +134,7 @@ print("%s \t %s \t %s \t %s" % (X_train.shape, X_test.shape, y_train.shape, y_te
 
 max_len = X_train.shape[1]  
 
-knn = KNeighborsClassifier(9)
+knn = KNeighborsClassifier(3)
 # model = nn_model(max_len)
 knn.fit(X_train, y_train)
 
