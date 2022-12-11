@@ -1,48 +1,29 @@
-import cv2 as cv
+import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 
-is_normalized = True
-image = cv.imread("IMG_1483.JPG")
+# Load image, grayscale, Otsu's threshold
+image = cv2.imread(r'NON FERMENTED-TANPA ALAS.jpg')
+image = cv2.resize(image, (0,0), fx=0.2, fy=0.2) 
+original = image.copy()
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+thresh = cv2.threshold(gray, 15, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-# Set total number of bins in the histogram
-bins_num = 256
- 
-# Get the image histogram
-hist, bin_edges = np.histogram(image, bins=bins_num)
- 
-# Get normalized histogram if it is required
-if is_normalized:
-    hist = np.divide(hist.ravel(), hist.max())
- 
-# Calculate centers of bins
-bin_mids = (bin_edges[:-1] + bin_edges[1:]) / 2.
- 
-# Iterate over all thresholds (indices) and get the probabilities w1(t), w2(t)
-weight1 = np.cumsum(hist)
-weight2 = np.cumsum(hist[::-1])[::-1]
- 
-# Get the class means mu0(t)
-mean1 = np.cumsum(hist * bin_mids) / weight1
-# Get the class means mu1(t)
-mean2 = (np.cumsum((hist * bin_mids)[::-1]) / weight2[::-1])[::-1]
- 
-inter_class_variance = weight1[:-1] * weight2[1:] * (mean1[:-1] - mean2[1:]) ** 2
- 
-# Maximize the inter_class_variance function val
-index_of_max_val = np.argmax(inter_class_variance)
- 
-threshold = bin_mids[:-1][index_of_max_val]
-print("Otsu's algorithm implementation thresholding result: ", threshold)
+# Morph open to remove noise
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=5)
 
-otsu_threshold, image_result = cv.threshold(
-    image, threshold, 255, cv.THRESH_OTSU
-)
-print("Obtained threshold: ", otsu_threshold)
-mask_inv = image_result
-mask_inv[mask_inv==255] = 10
-mask_inv[mask_inv==0] = 255
-mask_inv[mask_inv==10] = 0
-output = cv.bitwise_and(image,image, mask= mask_inv)
-cv.namedWindow("imageout", cv.WINDOW_NORMAL) 
-cv.waitKey(0)
+# Find contours, obtain bounding box, extract and save ROI
+ROI_number = 0
+cnts = cv2.findContours(opening, cv2.RETR_TREE, 2)
+cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+for c in cnts:
+    x,y,w,h = cv2.boundingRect(c)
+    cv2.rectangle(image, (x, y), (x + w, y + h), (36,255,12), 1)
+    ROI = original[y:y+h, x:x+w]
+    cv2.imwrite('ROI_{}.png'.format(ROI_number), ROI)
+    ROI_number += 1
+
+cv2.imshow('image', image)
+cv2.imshow('thresh', thresh)
+cv2.imshow('opening', opening)
+cv2.waitKey()

@@ -12,10 +12,10 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
+import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation
 
-import keras
 from keras import backend as K
 
 import itertools
@@ -26,27 +26,13 @@ def decimal_scaling(data):
     c = np.array([len(str(int(number))) for number in np.abs(max_row)])
     return data/(10**c)
 
-# --------------------- create custom metric evaluation ---------------------
-def precision(y_true, y_pred):
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-    recall = true_positives / (possible_positives + K.epsilon())
-    return recall
-
-def recall(y_true, y_pred):
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-    precision = true_positives / (predicted_positives + K.epsilon())
-    return precision
-  
-
 # --------------------------- create model -------------------------------
 def nn_model(max_len):
     
     model = Sequential()
     model.add(Dense(12, 
                     activation="elu",
-                    input_shape=(max_len,)))
+                    input_shape=(None, max_len)))
     model.add(Dense(1024, activation="elu"))
     model.add(Dense(512, activation="elu"))
     model.add(Dense(256, activation="elu"))
@@ -58,7 +44,7 @@ def nn_model(max_len):
     
     model.compile(optimizer='adam', 
                   loss='categorical_crossentropy',
-                  metrics = ['accuracy', precision, recall])
+                  metrics = ['accuracy'])
 
     return model
  
@@ -144,7 +130,7 @@ print(" categorical label : \n", le.classes_)
 Y = le.transform(glcm_df['label'].values)
 Y = to_categorical(Y)
 
-print("\n\n one hot encoding for sample 0 : \n", Y[0])
+print("\n\n one hot encoding for sample 0 : \n", Y)
 
 X_train, X_test, y_train, y_test = \
                     train_test_split(X, 
@@ -163,22 +149,12 @@ BATCH_SIZE = 32
 
 model = nn_model(max_len)
 history=check_model(model, X_train,y_train,X_test,y_test, EPOCHS, BATCH_SIZE)
+keras.models.save_model(model, "cocoa_1.h5")
+
+print(X_test[0])
 
  # predict test data
 y_pred=model.predict(X_test)
+
+print('\n Tets: ', y_pred)
 evaluate_model_(history)
-
-# Compute confusion matrix
-cnf_matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
-np.set_printoptions(precision=2)
-
-
-# Plot non-normalized confusion matrix
-plot_confusion_matrix(cnf_matrix, 
-                      classes=['fullyfermented', 'partialfermented', 'underfermented', 'unfermented'],
-                      normalize=False,
-                      title='Confusion matrix, with normalization')
-
-print(classification_report(y_test.argmax(axis=1), 
-                            y_pred.argmax(axis=1), 
-                            target_names=['fullyfermented', 'partialfermented', 'underfermented', 'unfermented']))

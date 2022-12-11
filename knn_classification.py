@@ -5,8 +5,7 @@ from keras.utils.np_utils import to_categorical
 
 from sklearn.model_selection import train_test_split
 
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -15,13 +14,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-from keras.models import Sequential
+from keras.models import Sequential, save_model
 from keras.layers import Dense, Activation
 
 import keras
 from keras import backend as K
 
 import itertools
+import pickle
 # ------------------------ Data Normalization menggunakan Decimal Scaling --------------------------------
 def decimal_scaling(data):
     data = np.array(data, dtype=np.float32)
@@ -41,40 +41,6 @@ def recall(y_true, y_pred):
     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
     precision = true_positives / (predicted_positives + K.epsilon())
     return precision
-  
-
-# --------------------------- create model -------------------------------
-def nn_model(max_len):
-    
-    model = Sequential()
-    model.add(Dense(12, 
-                    activation="elu",
-                    input_shape=(max_len,)))
-    model.add(Dense(1024, activation="elu"))
-    model.add(Dense(512, activation="elu"))
-    model.add(Dense(256, activation="elu"))
-    model.add(Dense(128, activation="elu"))
-    model.add(Dense(4))
-    model.add(Activation("sigmoid"))
-    
-    model.summary() 
-    
-    model.compile(optimizer='adam', 
-                  loss='categorical_crossentropy',
-                  metrics = ['accuracy', precision, recall])
-
-    return model
- 
-
-# ------------------------- check model -----------------------------
-def check_model(model_, x, y, x_val, y_val, epochs_, batch_size_):
-
-    hist = model_.fit(x, 
-                      y,
-                      epochs=epochs_,
-                      batch_size=batch_size_,
-                      validation_data=(x_val,y_val))
-    return hist 
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -121,7 +87,6 @@ def evaluate_model_(history):
         plt.show()
 
 
-
 glcm_df = pd.read_csv("cocoa_features_lab.csv")
 
 print(glcm_df.head())
@@ -161,27 +126,17 @@ print("%s \t %s \t %s \t %s" % (X_train.shape, X_test.shape, y_train.shape, y_te
 
 max_len = X_train.shape[1]  
 
-EPOCHS = 1000
-BATCH_SIZE = 32
+knn = KNeighborsClassifier(3)
+# model = nn_model(max_len)
+knn.fit(X_train, y_train)
+knnPickle = open('knnpickle_file', 'wb') 
+pickle.dump(knn, knnPickle)
+knnPickle.close()
 
-model = nn_model(max_len)
-history=check_model(model, X_train,y_train,X_test,y_test, EPOCHS, BATCH_SIZE)
+y_pred = knn.predict(X_test)
+# history=check_model(model, X_train,y_train,X_test,y_test, EPOCHS, BATCH_SIZE)
+# predict test data
+# y_pred=model.predict(X_test)]
+# evaluate_model_(history)
 
- # predict test data
-y_pred=model.predict(X_test)
-evaluate_model_(history)
-
-# Compute confusion matrix
-cnf_matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
-np.set_printoptions(precision=2)
-
-
-# Plot non-normalized confusion matrix
-plot_confusion_matrix(cnf_matrix, 
-                      classes=['fullyfermented', 'partialfermented', 'underfermented', 'unfermented'],
-                      normalize=False,
-                      title='Confusion matrix, with normalization')
-
-print(classification_report(y_test.argmax(axis=1), 
-                            y_pred.argmax(axis=1), 
-                            target_names=['fullyfermented', 'partialfermented', 'underfermented', 'unfermented']))
+print("Accuracy:", accuracy_score(y_test, y_pred))
