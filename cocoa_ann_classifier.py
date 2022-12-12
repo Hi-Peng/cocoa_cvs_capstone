@@ -8,7 +8,7 @@ from skimage.feature import graycomatrix, graycoprops
 import skimage.measure 
 from datetime import datetime
 
-properties = ['dissimilarity', 'correlation', 'homogeneity', 'contrast', 'ASM', 'energy']
+properties = ['energy']
 
 # ----------------- calculate greycomatrix() & greycoprops() for angle 0, 45, 90, 135 ----------------------------------
 def calc_glcm_all_agls(img, props, dists=[5], agls=[0, np.pi/4, np.pi/2, 3*np.pi/4], lvl=256, sym=True, norm=True):
@@ -58,7 +58,7 @@ color = (255, 0, 0)
 # Line thickness of 2 px
 thickness = 1
 # Load image, grayscale, Otsu's threshold
-image = cv2.imread(r'test_images\NON FERMENTED-TANPA ALAS.jpg')
+image = cv2.imread(r'test_images\PARSIAL FERMENTED-TANPA ALAS.jpg')
 image = cv2.resize(image, (0,0), fx=0.7, fy=0.7) 
 
 height, width, channels = image.shape
@@ -99,27 +99,12 @@ for c in cnts:
         glcm_f = []
         f = []
 
-        for a in range(3):
-            '''f.append(kurtosis(ROI[:,:,a], axis=None))
-            f.append(skew(ROI[:,:,a], axis=None, bias=True))
-            f.append(tvar(ROI[:,:,a], axis=None))
-            f.append(tmean(ROI[:,:,a], axis=None))
-
-            
-            f.append(kurtosis(hsv_img[:,:,a], axis=None))
-            f.append(skew(hsv_img[:,:,a], axis=None, bias=True))
-            f.append(tvar(hsv_img[:,:,a], axis=None))
-            f.append(tmean(hsv_img[:,:,a], axis=None))'''
-
-            f.append(kurtosis(lab_img[:,:,a], axis=None))
-            f.append(skew(lab_img[:,:,a], axis=None, bias=True))
-            f.append(tvar(lab_img[:,:,a], axis=None))
-            f.append(tmean(lab_img[:,:,a], axis=None))
-            f.append(skimage.measure.shannon_entropy(lab_img[:,:,a])) 
-            
-        glcm_f = calc_glcm_all_agls(gray_img, props=properties)
-        for u in range(len(glcm_f)):
-            f.append(glcm_f[u])
+        f.append(kurtosis(lab_img[:,:,0], axis=None))
+        f.append(skew(lab_img[:,:,0], axis=None, bias=True))
+        f.append(tvar(lab_img[:,:,0], axis=None))
+        f.append(tmean(lab_img[:,:,0], axis=None))
+        f.append(tmean(lab_img[:,:,1], axis=None))
+        f.append(tmean(lab_img[:,:,2], axis=None))
 
         f_array = np.array(f, ndmin=2)
         prediction = loaded_model.predict(f_array)

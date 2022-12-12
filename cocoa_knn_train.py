@@ -8,6 +8,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
+
 
 import numpy as np
 import pandas as pd
@@ -98,19 +101,13 @@ label_name = ['fullyfermented', 'partialfermented', 'underfermented', 'unferment
 
 print(label_distr)
 
-X = decimal_scaling(
-            glcm_df[[
-                        'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
+X = glcm_df[[
+                       'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
                         'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean','a_entropy',
                         'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean','b_entropy',
-
-                        'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
-                        'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
-                        'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
-                        'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
-                        'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
-                        'energy_0',         'energy_45',         'energy_90',         'energy_135']].values
-)
+                        
+                        'energy_0',         'energy_45',        'energy_90',        'energy_135', 
+            ]].values
 
 le = LabelEncoder()
 le.fit(glcm_df["label"].values)

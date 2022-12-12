@@ -49,7 +49,7 @@ def calc_glcm_all_agls(img, label, props, dists=[5], agls=[0, np.pi/4, np.pi/2, 
 
 dataset_dir = 'cocoa_final_dataset_1\\'
 
-properties = ['dissimilarity', 'correlation', 'homogeneity', 'contrast', 'ASM', 'energy']
+properties = ['energy']
 
 features = [] #list image matrix 
 labels = []
@@ -104,12 +104,7 @@ col = [
         'l_kurtosis', 'l_skew', 'l_tvar', 'l_tmean','l_entropy',
         'a_kurtosis', 'a_skew', 'a_tvar', 'a_tmean','a_entropy',
         'b_kurtosis', 'b_skew', 'b_tvar', 'b_tmean','b_entropy',
-
-        'dissimilarity_0',  'dissimilarity_45', 'dissimilarity_90', 'dissimilarity_135',
-        'correlation_0',    'correlation_45',   'correlation_90',   'correlation_135',
-        'homogeneity_0',    'homogeneity_45',   'homogeneity_90',   'homogeneity_135',
-        'contrast_0',       'contrast_45',      'contrast_90',      'contrast_135',
-        'ASM_0',            'ASM_45',           'ASM_90',           'ASM_135',
+        
         'energy_0',         'energy_45',        'energy_90',        'energy_135', 
 
         'label'

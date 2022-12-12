@@ -20,7 +20,7 @@ img1 = cv2.imread(r"cocoa_final_dataset\train\fully_fermented\fully_fermented_1.
 print('No of Channel is: ' + str(img1.ndim))
   
 # reading reference image
-img2 = cv2.imread(r"result\ROI_fully fermented_2.png")
+img2 = cv2.imread(r"result\ROI_fully fermented_7.png")
   
 # checking the number of channels
 print('No of Channel is: ' + str(img2.ndim))
@@ -31,7 +31,7 @@ reference = img2
 dataset_dir = 'cocoa_final_dataset\\'
 for folder in os.listdir(dataset_dir):
     for sub_folder in os.listdir(os.path.join(dataset_dir, folder)):
-        sub_folder = 'unfermented'
+        sub_folder = 'under_fermented'
         sub_folder_files = os.listdir(os.path.join(dataset_dir, folder, sub_folder))
         len_sub_folder = len(sub_folder_files) - 1
         print(sub_folder)
