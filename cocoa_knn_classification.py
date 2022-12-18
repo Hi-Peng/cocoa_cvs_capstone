@@ -84,6 +84,10 @@ original = cv2.bitwise_and(original, original, mask=opening)
 cv2.waitKey()
 
 predicts = []
+detected_ff = 0
+detected_pf = 0
+detected_uf = 0
+detected_nf = 0
 for c in cnts:
     x,y,w,h = cv2.boundingRect(c)
 
@@ -117,7 +121,7 @@ for c in cnts:
 
 prediction = loaded_model.predict(predicts)
 prediction_label_index = [np.where(r==1)[0][0] for r in prediction]
-print(prediction)
+# print(prediction)
 
 ROI_number = 0
 
@@ -132,10 +136,34 @@ for c in cnts:
         idx = prediction_label_index[ROI_number]
         ROI = cv2.putText(image, str(label_name[idx]),  (x, y), font, 
                     fontScale, color, thickness, cv2.LINE_AA)
+        if(str(label_name[idx]) == "fully fermented"):
+            detected_ff += 1
+        elif(str(label_name[idx]) == "partial fermented"):
+            detected_pf += 1
+        elif(str(label_name[idx]) == "under fermented"):
+            detected_uf += 1
+        else:
+            detected_nf += 1
         ROI_number += 1
     else:
         pass
 
+print("------------------\nRESULT\n------------------")
+print("Total Kakao Terdeteksi:\t{}".format(ROI_number))
+image = cv2.putText(image, str("Total Kakao Terdeteksi: {}".format(ROI_number)),  (10, 20), font, 
+                    fontScale, color, thickness, cv2.LINE_AA)
+print("Fully Fermented: \t{}|{}%".format(detected_ff, ((detected_ff/ROI_number)*100)))
+image = cv2.putText(image, str("Fully Fermented:    {}|{}%".format(detected_ff, ((detected_ff/ROI_number)*100))),  (10, 40), font, 
+                    fontScale, color, thickness, cv2.LINE_AA)
+print("Partial Fermented: \t{}|{}%".format(detected_pf, ((detected_pf/ROI_number)*100)))
+image = cv2.putText(image, str("Partial Fermented:  {}|{}%".format(detected_pf, ((detected_pf/ROI_number)*100))),  (10, 60), font, 
+                    fontScale, color, thickness, cv2.LINE_AA)
+print("Under Fermented: \t{}|{}%".format(detected_uf, ((detected_uf/ROI_number)*100)))
+image = cv2.putText(image, str("Under Fermented:   {}|{}%".format(detected_uf, ((detected_uf/ROI_number)*100))),  (10, 80), font, 
+                    fontScale, color, thickness, cv2.LINE_AA)
+print("Non Fermented: \t\t{}|{}%\n------------------\nSaved to".format(detected_nf, ((detected_nf/ROI_number)*100)))
+image = cv2.putText(image, str("Non Fermented:     {}|{}%".format(detected_nf, ((detected_nf/ROI_number)*100))),  (10, 100), font, 
+                    fontScale, color, thickness, cv2.LINE_AA)
 now = datetime.now()
 dt_string = now.strftime("%Y%m%d%H%M%S")
 print(dt_string)
