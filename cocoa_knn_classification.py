@@ -60,7 +60,7 @@ color = (255, 0, 0)
 # Line thickness of 2 px
 thickness = 1
 # Load image, grayscale, Otsu's threshold
-image = cv2.imread(r'test_images\NON FERMENTED-TANPA ALAS.jpg')
+image = cv2.imread(r'test_images\1.jpg')
 image = cv2.resize(image, (0,0), fx=0.5, fy=0.5) 
 
 height, width, channels = image.shape
